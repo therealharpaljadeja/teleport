@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles for the teleport component */
+.tp-teleport-root {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Ensure modal backdrop covers everything */
+.tp-fixed.tp-inset-0 {
+  backdrop-filter: blur(4px);
+}
+
+/* Input focus states */
+.tp-teleport-root input:focus {
+  outline: none;
+}
+
+/* Smooth transitions */
+.tp-teleport-root button,
+.tp-teleport-root a {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
