@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getWalletBalances } from '@lifi/sdk';
 import { useAccount } from 'wagmi';
-import { SOURCE_CHAINS, USDC_DECIMALS } from '../config/chains';
+import { SOURCE_CHAINS } from '../config/chains';
 import { ensureLifiInitialized } from '../config/lifi';
 import type { TokenBalance } from '../types';
 
@@ -32,23 +32,31 @@ export function useTokenBalances(): UseTokenBalancesResult {
 
       const result = await getWalletBalances(address);
 
-      const formattedBalances: TokenBalance[] = SOURCE_CHAINS.map((chain) => {
+      const formattedBalances: TokenBalance[] = [];
+
+      for (const chain of SOURCE_CHAINS) {
         const chainTokens = result[chain.id] || [];
-        const usdcToken = chainTokens.find(
-          (t) => t.address.toLowerCase() === chain.usdcAddress.toLowerCase()
-        );
 
-        const balance = usdcToken?.amount?.toString() || '0';
-        const balanceNum = parseFloat(balance) / Math.pow(10, USDC_DECIMALS);
+        for (const token of chain.tokens) {
+          const matchedToken = chainTokens.find(
+            (t) => t.address.toLowerCase() === token.address.toLowerCase()
+          );
 
-        return {
-          chainId: chain.id,
-          chainName: chain.name,
-          balance,
-          balanceFormatted: balanceNum.toFixed(2),
-          usdcAddress: chain.usdcAddress,
-        };
-      });
+          const balance = matchedToken?.amount?.toString() || '0';
+          const balanceNum = parseFloat(balance) / Math.pow(10, token.decimals);
+
+          formattedBalances.push({
+            chainId: chain.id,
+            chainName: chain.name,
+            balance,
+            balanceFormatted: balanceNum.toFixed(token.decimals === 18 ? 6 : 2),
+            tokenAddress: token.address,
+            asset: token.asset,
+            decimals: token.decimals,
+            symbol: token.symbol,
+          });
+        }
+      }
 
       setBalances(formattedBalances);
     } catch (err) {

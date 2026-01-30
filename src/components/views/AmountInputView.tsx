@@ -2,7 +2,7 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import { clsx } from 'clsx';
 import { useTeleport } from '../../context/TeleportContext';
 import { useBridgeQuote } from '../../hooks/useBridgeQuote';
-import { getChainById, formatUSDC } from '../../config/chains';
+import { getChainById, formatTokenAmount } from '../../config/chains';
 
 const PRESET_PERCENTAGES = [
   { label: '25%', value: 0.25 },
@@ -16,13 +16,16 @@ export function AmountInputView() {
   const [inputValue, setInputValue] = useState(state.amount || '');
 
   const selectedBalance = state.balances.find(
-    (b) => b.chainId === state.selectedChainId
+    (b) => b.chainId === state.selectedChainId && b.asset === state.selectedAsset
   );
   const maxAmount = selectedBalance ? parseFloat(selectedBalance.balanceFormatted) : 0;
   const sourceChain = state.selectedChainId ? getChainById(state.selectedChainId) : null;
+  const assetSymbol = selectedBalance?.symbol || state.selectedAsset || 'USDC';
+  const assetDecimals = selectedBalance?.decimals || 6;
+  const displayDecimals = assetDecimals === 18 ? 6 : 2;
 
   const handlePresetClick = (percentage: number) => {
-    const amount = (maxAmount * percentage).toFixed(2);
+    const amount = (maxAmount * percentage).toFixed(displayDecimals);
     setInputValue(amount);
     setAmount(amount);
   };
@@ -46,9 +49,14 @@ export function AmountInputView() {
       return;
     }
 
-    if (!state.selectedChainId) return;
+    if (!state.selectedChainId || !selectedBalance) return;
 
-    const quote = await fetchQuote(state.selectedChainId, inputValue);
+    const quote = await fetchQuote(
+      state.selectedChainId,
+      inputValue,
+      selectedBalance.tokenAddress,
+      selectedBalance.decimals
+    );
     if (quote) {
       setQuote(quote);
       setView('confirm');
@@ -86,7 +94,7 @@ export function AmountInputView() {
       <div className="tp-text-center">
         <p className="tp-text-sm tp-text-gray-500">From {sourceChain?.name}</p>
         <p className="tp-text-sm tp-text-gray-400">
-          Available: {formatUSDC(maxAmount.toString())} USDC
+          Available: {formatTokenAmount(maxAmount.toString(), displayDecimals)} {assetSymbol}
         </p>
       </div>
 
@@ -95,11 +103,11 @@ export function AmountInputView() {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          placeholder="0.00"
+          placeholder={displayDecimals === 6 ? '0.000000' : '0.00'}
           className="tp-w-full tp-text-center tp-text-3xl tp-font-bold tp-py-4 tp-border tp-border-gray-200 tp-rounded-lg focus:tp-outline-none focus:tp-border-monad-purple focus:tp-ring-1 focus:tp-ring-monad-purple"
         />
         <span className="tp-absolute tp-right-4 tp-top-1/2 tp--translate-y-1/2 tp-text-gray-400 tp-text-lg">
-          USDC
+          {assetSymbol}
         </span>
       </div>
 

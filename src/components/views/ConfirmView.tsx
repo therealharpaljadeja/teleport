@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { useTeleport } from '../../context/TeleportContext';
 import { useBridgeTransaction } from '../../hooks/useBridgeTransaction';
-import { getChainById, formatUSDC, USDC_DECIMALS, CHAIN_LOGOS, MONAD_CHAIN_ID } from '../../config/chains';
+import { getChainById, formatTokenAmount, MON_DECIMALS, CHAIN_LOGOS, MONAD_CHAIN_ID } from '../../config/chains';
 
 export function ConfirmView() {
   const { state, setView, setTxHash, setError } = useTeleport();
@@ -9,12 +9,13 @@ export function ConfirmView() {
 
   const sourceChain = state.selectedChainId ? getChainById(state.selectedChainId) : null;
   const quote = state.quote;
+  const assetSymbol = state.selectedAsset || 'USDC';
 
   if (!quote || !sourceChain) {
     return null;
   }
 
-  const receivedAmount = parseFloat(quote.toAmountMin) / Math.pow(10, USDC_DECIMALS);
+  const receivedAmount = parseFloat(quote.toAmountMin) / Math.pow(10, MON_DECIMALS);
   const estimatedMinutes = Math.ceil(quote.estimatedTime / 60);
 
   const handleConfirm = async () => {
@@ -54,7 +55,7 @@ export function ConfirmView() {
       <div className="tp-text-center tp-py-2">
         <p className="tp-text-sm tp-text-gray-500">You're bridging</p>
         <p className="tp-text-3xl tp-font-bold tp-text-gray-900">
-          {formatUSDC(quote.fromAmount)} USDC
+          {formatTokenAmount(quote.fromAmount, assetSymbol === 'ETH' ? 6 : 2)} {assetSymbol}
         </p>
       </div>
 
@@ -88,7 +89,7 @@ export function ConfirmView() {
         <div className="tp-flex tp-justify-between tp-text-sm">
           <span className="tp-text-gray-500">You receive (min)</span>
           <span className="tp-font-medium tp-text-gray-900">
-            {formatUSDC(receivedAmount.toString())} USDC
+            {formatTokenAmount(receivedAmount.toString(), 6)} MON
           </span>
         </div>
         <div className="tp-flex tp-justify-between tp-text-sm">

@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
-import type { TeleportState, TeleportContextValue, DialogView, BridgeQuote, TokenBalance } from '../types';
+import type { TeleportState, TeleportContextValue, DialogView, BridgeQuote, TokenBalance, SourceAsset } from '../types';
 
 const initialState: TeleportState = {
   view: 'loading',
   selectedChainId: null,
+  selectedAsset: null,
   amount: '',
   quote: null,
   txHash: null,
@@ -32,6 +33,10 @@ export function TeleportProvider({ children }: { children: ReactNode }) {
 
   const selectChain = useCallback((chainId: number) => {
     setState((prev) => ({ ...prev, selectedChainId: chainId }));
+  }, []);
+
+  const selectAsset = useCallback((asset: SourceAsset) => {
+    setState((prev) => ({ ...prev, selectedAsset: asset }));
   }, []);
 
   const setAmount = useCallback((amount: string) => {
@@ -66,6 +71,7 @@ export function TeleportProvider({ children }: { children: ReactNode }) {
       close,
       setView,
       selectChain,
+      selectAsset,
       setAmount,
       setQuote,
       setTxHash,
@@ -73,7 +79,7 @@ export function TeleportProvider({ children }: { children: ReactNode }) {
       setBalances,
       reset,
     }),
-    [state, isOpen, open, close, setView, selectChain, setAmount, setQuote, setTxHash, setError, setBalances, reset]
+    [state, isOpen, open, close, setView, selectChain, selectAsset, setAmount, setQuote, setTxHash, setError, setBalances, reset]
   );
 
   return <TeleportContext.Provider value={value}>{children}</TeleportContext.Provider>;

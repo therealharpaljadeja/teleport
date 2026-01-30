@@ -45,7 +45,7 @@ function TeleportButtonInner({
           className
         )}
       >
-        {children || 'Teleport USDC'}
+        {children || 'Teleport'}
       </button>
       <TeleportDialog
         className={dialogClassName}

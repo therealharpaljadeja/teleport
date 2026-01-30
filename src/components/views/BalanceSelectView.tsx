@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import { useTeleport } from '../../context/TeleportContext';
-import { formatUSDC, CHAIN_LOGOS } from '../../config/chains';
+import { formatTokenAmount, CHAIN_LOGOS } from '../../config/chains';
 import type { TokenBalance } from '../../types';
 
 interface ChainCardProps {
@@ -39,7 +39,7 @@ function ChainCard({ balance, onSelect, disabled }: ChainCardProps) {
       </div>
       <div className="tp-text-right">
         <span className={clsx('tp-font-mono', hasBalance ? 'tp-text-gray-900' : 'tp-text-gray-400')}>
-          {formatUSDC(balance.balanceFormatted)} USDC
+          {formatTokenAmount(balance.balanceFormatted, balance.asset === 'ETH' ? 6 : 2)} {balance.symbol}
         </span>
       </div>
     </button>
@@ -47,48 +47,46 @@ function ChainCard({ balance, onSelect, disabled }: ChainCardProps) {
 }
 
 export function BalanceSelectView() {
-  const { state, selectChain, setView } = useTeleport();
+  const { state, selectChain, selectAsset, setView } = useTeleport();
 
-  const handleSelectChain = (chainId: number) => {
-    selectChain(chainId);
+  const handleSelect = (balance: TokenBalance) => {
+    selectChain(balance.chainId);
+    selectAsset(balance.asset);
     setView('amount');
   };
 
-  const totalBalance = state.balances.reduce(
-    (sum, b) => sum + parseFloat(b.balanceFormatted),
-    0
-  );
+  const balancesWithFunds = state.balances.filter((b) => parseFloat(b.balance) > 0);
 
   return (
     <div className="tp-flex tp-flex-col tp-gap-4">
       <div className="tp-text-center tp-pb-2">
-        <p className="tp-text-sm tp-text-gray-500">Total USDC across chains</p>
+        <p className="tp-text-sm tp-text-gray-500">Available balances across chains</p>
         <p className="tp-text-2xl tp-font-bold tp-text-gray-900">
-          ${formatUSDC(totalBalance.toString())}
+          {balancesWithFunds.length} balance{balancesWithFunds.length !== 1 ? 's' : ''} available
         </p>
       </div>
 
       <div className="tp-border-t tp-border-gray-100 tp-pt-4">
         <p className="tp-text-sm tp-font-medium tp-text-gray-700 tp-mb-3">
-          Select source chain
+          Select source chain & asset
         </p>
         <div className="tp-flex tp-flex-col tp-gap-2">
           {state.balances
             .filter((balance) => parseFloat(balance.balance) > 0)
             .map((balance) => (
               <ChainCard
-                key={balance.chainId}
+                key={`${balance.chainId}-${balance.asset}`}
                 balance={balance}
-                onSelect={() => handleSelectChain(balance.chainId)}
+                onSelect={() => handleSelect(balance)}
                 disabled={false}
               />
             ))}
         </div>
       </div>
 
-      {totalBalance === 0 && (
+      {balancesWithFunds.length === 0 && (
         <p className="tp-text-center tp-text-sm tp-text-gray-500 tp-mt-2">
-          No USDC found on supported chains
+          No supported tokens found on supported chains
         </p>
       )}
     </div>

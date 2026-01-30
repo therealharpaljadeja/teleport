@@ -1,7 +1,16 @@
+export type SourceAsset = 'USDC' | 'ETH';
+
+export interface SourceToken {
+  asset: SourceAsset;
+  address: `0x${string}`;
+  decimals: number;
+  symbol: string;
+}
+
 export interface ChainConfig {
   id: number;
   name: string;
-  usdcAddress: `0x${string}`;
+  tokens: SourceToken[];
   icon?: string;
   explorerUrl: string;
 }
@@ -11,7 +20,10 @@ export interface TokenBalance {
   chainName: string;
   balance: string;
   balanceFormatted: string;
-  usdcAddress: `0x${string}`;
+  tokenAddress: `0x${string}`;
+  asset: SourceAsset;
+  decimals: number;
+  symbol: string;
 }
 
 export interface BridgeQuote {
@@ -47,6 +59,7 @@ export type DialogView =
 export interface TeleportState {
   view: DialogView;
   selectedChainId: number | null;
+  selectedAsset: SourceAsset | null;
   amount: string;
   quote: BridgeQuote | null;
   txHash: string | null;
@@ -74,6 +87,7 @@ export interface TeleportContextValue {
   close: () => void;
   setView: (view: DialogView) => void;
   selectChain: (chainId: number) => void;
+  selectAsset: (asset: SourceAsset) => void;
   setAmount: (amount: string) => void;
   setQuote: (quote: BridgeQuote | null) => void;
   setTxHash: (hash: string) => void;

@@ -1,5 +1,5 @@
 import { useTeleport } from '../../context/TeleportContext';
-import { getChainById, getExplorerTxUrl, formatUSDC } from '../../config/chains';
+import { getChainById, getExplorerTxUrl, formatTokenAmount } from '../../config/chains';
 
 interface SuccessViewProps {
   onClose: () => void;
@@ -8,6 +8,7 @@ interface SuccessViewProps {
 export function SuccessView({ onClose }: SuccessViewProps) {
   const { state } = useTeleport();
   const sourceChain = state.selectedChainId ? getChainById(state.selectedChainId) : null;
+  const assetSymbol = state.selectedAsset || 'USDC';
 
   const explorerUrl = state.txHash && state.selectedChainId
     ? getExplorerTxUrl(state.selectedChainId, state.txHash)
@@ -34,7 +35,7 @@ export function SuccessView({ onClose }: SuccessViewProps) {
       <div className="tp-text-center">
         <p className="tp-text-lg tp-font-semibold tp-text-gray-900">Bridge Successful!</p>
         <p className="tp-text-sm tp-text-gray-500 tp-mt-1">
-          {formatUSDC(state.amount)} USDC bridged from {sourceChain?.name} to Monad
+          {formatTokenAmount(state.amount, assetSymbol === 'ETH' ? 6 : 2)} {assetSymbol} bridged from {sourceChain?.name} to Monad for MON
         </p>
       </div>
 

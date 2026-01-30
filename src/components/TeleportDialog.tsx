@@ -124,7 +124,7 @@ export function TeleportDialog({
   const getTitle = () => {
     switch (state.view) {
       case 'loading':
-        return 'Teleport USDC';
+        return 'Teleport';
       case 'balances':
         return 'Select Chain';
       case 'amount':
@@ -140,7 +140,7 @@ export function TeleportDialog({
       case 'error':
         return 'Error';
       default:
-        return 'Teleport USDC';
+        return 'Teleport';
     }
   };
 

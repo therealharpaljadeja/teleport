@@ -12,11 +12,17 @@ export { useBridgeTransaction } from './hooks/useBridgeTransaction';
 export {
   MONAD_CHAIN_ID,
   MONAD_USDC_ADDRESS,
+  MONAD_MON_ADDRESS,
+  NATIVE_TOKEN_ADDRESS,
+  ETH_DECIMALS,
+  MON_DECIMALS,
   SOURCE_CHAINS,
   CHAIN_LOGOS,
   getChainById,
   getExplorerTxUrl,
   formatUSDC,
+  formatTokenAmount,
+  parseTokenAmount,
 } from './config/chains';
 
 export { configureLifi, type LifiConfig } from './config/lifi';
@@ -31,4 +37,6 @@ export type {
   TokenBalance,
   BridgeQuote,
   BridgeTransaction,
+  SourceAsset,
+  SourceToken,
 } from './types';

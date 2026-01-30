@@ -1,15 +1,16 @@
 import { useTeleport } from '../../context/TeleportContext';
-import { getChainById, formatUSDC } from '../../config/chains';
-
-const STEPS = [
-  { id: 'approve', label: 'Approve USDC' },
-  { id: 'bridge', label: 'Initiate bridge' },
-  { id: 'wait', label: 'Waiting for confirmation' },
-];
+import { getChainById, formatTokenAmount } from '../../config/chains';
 
 export function ProcessingView() {
   const { state } = useTeleport();
   const sourceChain = state.selectedChainId ? getChainById(state.selectedChainId) : null;
+  const assetSymbol = state.selectedAsset || 'USDC';
+
+  const steps = [
+    { id: 'approve', label: assetSymbol === 'ETH' ? 'Confirm transaction' : `Approve ${assetSymbol}` },
+    { id: 'bridge', label: 'Initiate bridge' },
+    { id: 'wait', label: 'Waiting for confirmation' },
+  ];
 
   const currentStep = state.txHash ? 2 : 1;
 
@@ -20,12 +21,12 @@ export function ProcessingView() {
       <div className="tp-text-center">
         <p className="tp-text-lg tp-font-semibold tp-text-gray-900">Bridging in progress</p>
         <p className="tp-text-sm tp-text-gray-500 tp-mt-1">
-          {formatUSDC(state.amount)} USDC from {sourceChain?.name} to Monad
+          {formatTokenAmount(state.amount, assetSymbol === 'ETH' ? 6 : 2)} {assetSymbol} from {sourceChain?.name} to Monad (MON)
         </p>
       </div>
 
       <div className="tp-w-full tp-space-y-3">
-        {STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const isCompleted = index < currentStep;
           const isCurrent = index === currentStep;
 
